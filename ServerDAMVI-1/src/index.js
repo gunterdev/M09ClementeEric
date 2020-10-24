@@ -6,7 +6,12 @@ const app = express()
 app.use(bodyParser.urlencoded({extended: false})); //LO QUE HACE ES ENCODAR LA URL, PARA PODER UTILIZAR SIMBOLOS EN ELLA COMO ?¿$·%$
 app.use(bodyParser.json());
 
-let jugadors = [{
+let ranking = {
+    nombreJugadors: '',
+    Players: ''
+}
+let jugadors = [
+    {
         posicio: "1",
         alies: "jperez",
         nom: "Jose",
@@ -27,7 +32,6 @@ let jugadors = [{
         congnom: "Gutierrez",
         score: "850"
     }];
-
 
 let respuesta={
     error: false,
@@ -50,7 +54,10 @@ app.get('/Hola', function(req, res){
 ////////////////////////////////////////////////////
 app.get('/ranking', function(req, res){
     SortPlayers();
-    res.send(jugadors);
+    NJugadors = jugadors.length;
+    ranking.nombreJugadors = NJugadors;
+    ranking.Players = jugadors;
+    res.send(ranking);
 })
 
 app.route('/jugador/:user')
@@ -79,10 +86,9 @@ app.route('/jugador/:user')
         var surnameOfPlayer = req.body.congnom || '';
         var scoreOfPlayer = req.body.score || '';
         var nicknameOfPlayer = req.body.alies || '';
-        var rankOfPlayer = req.body.posicio || ''; 
         respuesta.error = false;
     
-        if(nameOfPlayer == ''|| surnameOfPlayer == '' || parseInt(scoreOfPlayer) <= 0 || nicknameOfPlayer == ''|| rankOfPlayer == '') {
+        if(nameOfPlayer == ''|| surnameOfPlayer == '' || parseInt(scoreOfPlayer) <= 0 || scoreOfPlayer == '' || nicknameOfPlayer == '') {
             respuesta = {
                 error: true,
                 codigo: 502,
@@ -113,7 +119,7 @@ app.route('/jugador/:user')
             {
                 jugadors.push(
                     {
-                        posicio: rankOfPlayer,
+                        posicio: '',
                         alies: nicknameOfPlayer,
                         nom: nameOfPlayer,
                         congnom: surnameOfPlayer,
@@ -127,9 +133,9 @@ app.route('/jugador/:user')
                     mensaje: 'Jugador Creado',   
                     respuesta: jugadors[jugadors.length - 1]          
                 };
+                SortPlayers();
             }
         }
-        SortPlayers();
         res.send(respuesta); /////LA POSICION SE ENVIARA YA ACTUALIZADA.
     })
     .put(function (req, res) {
@@ -137,31 +143,24 @@ app.route('/jugador/:user')
         var surnameOfPlayer = req.body.congnom || '';
         var scoreOfPlayer = req.body.score || '';
         var nicknameOfPlayer = req.body.alies || '';
-        var rankOfPlayer = req.body.posicio || '';
         var playerFound = false;
 
 
-        if(nameOfPlayer == '' || surnameOfPlayer == '' || parseInt(scoreOfPlayer) <= 0|| nicknameOfPlayer == ''|| rankOfPlayer == '') {
+        
+        if(nameOfPlayer == '' || surnameOfPlayer == '' || parseInt(scoreOfPlayer) <= 0|| scoreOfPlayer == '' || nicknameOfPlayer == '') {
             respuesta = {
                 error: true,
                 codigo: 502,
-                mensaje: 'El campo nom, cognom, score, alies, posicio son requeridos (el valor del score no puede ser negativo)'
-            };
-        } 
-        else if(nicknameOfPlayer != req.params.user) {
-            respuesta = {
-                error: true,
-                codigo: 504,
-                mensaje: 'El jugador no existe'
+                mensaje: 'El campo nom, cognom, score, alies son requeridos (el valor del score no puede ser negativo)'
             };
         } 
         else {
             for(var x = 0; x < jugadors.length ; x++)
             {
-                if(jugadors[x].nom == nameOfPlayer && jugadors[x].congnom == surnameOfPlayer && jugadors[x].alies == nicknameOfPlayer) 
+                if(jugadors[x].alies == req.params.user) 
                 {
                     jugadors[x] = {
-                        posicio: rankOfPlayer,
+                        posicio: '',
                         alies: nicknameOfPlayer,
                         nom: nameOfPlayer,
                         congnom: surnameOfPlayer,
@@ -175,6 +174,7 @@ app.route('/jugador/:user')
                         respuesta: jugadors[x]
                     };
                     playerFound = true;
+                    SortPlayers();
                 }
             }
             if(!playerFound)
@@ -182,11 +182,10 @@ app.route('/jugador/:user')
                 respuesta = {
                     error: true,
                     codigo: 504,
-                    mensaje: 'El jugador existe'
+                    mensaje: 'El jugador no existe'
                 };
             }
-        }
-        SortPlayers();
+        }     
         res.send(respuesta);
        })
 
