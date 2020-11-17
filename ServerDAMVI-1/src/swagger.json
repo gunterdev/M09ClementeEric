@@ -1,0 +1,298 @@
+﻿{
+  "swagger": "2.0",
+  "info": {
+    "description": "This is a simple API",
+    "version": "1.0.0",
+    "title": "API Videogames"
+  },
+
+  "paths": {
+    "/": {
+      "get": {
+        "tags": ["Root"],
+        "summary": "Root of the server",
+        "description": "base screen",
+        "parameters": [],
+        "responses":{
+          "100": {
+            "description":"base screen",
+            "schema":{
+              "$ref":"#/definitions/code100"
+            }
+          }
+        }
+      }
+    },
+    "/ranking": {
+      "get": {
+        "tags": [
+          "ranking"
+        ],
+        "summary": "Shows the leaderboard",
+        "description": "Shows the leaderboard of the players, ordered by score",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "Leaderboard",
+            "schema": {
+              "$ref": "#/definitions/players"
+            }
+          }
+        }
+      }
+    },
+    "/players/{alias}": {
+      "get": {
+        "tags": [
+          "players"
+        ],
+        "summary": "Returns a player info",
+        "parameters": [
+          {
+            "name": "alias",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "player exists",
+            "schema": {
+              "$ref": "#/definitions/player"
+            }
+          },
+          "504": {
+            "description": "Player Not Found",
+            "schema": {
+              "$ref": "#/definitions/codeError504"
+            }
+          }
+        }
+      },
+      "post": {
+        "tags": ["players"],
+        "summary": "Enter a player",
+        "description": "Create a new player",
+        "parameters": [
+          {
+            "name": "alias",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "player",
+            "description": "Info of the user that we want to create",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/playerCreator"
+            }
+          }
+        ],
+        "produces":[
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "New player is created",
+            "schema": {
+              "$ref": "#/definitions/playerCreator"
+            }
+          },
+          "201": {
+            "description": "Player Created",
+            "schema": {
+              "$ref": "#/definitions/code201"
+            }
+          },
+          "502": {
+            "description": "The field; name, surname, score are mandatories (the score value has to be >0)",
+            "schema": {
+              "$ref": "#/definitions/codeError502"
+            }
+          },
+          "503": {
+            "description": "Player Exists",
+            "schema": {
+              "$ref": "#/definitions/codeError503"
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "players"
+        ],
+        "summary": "Update a player",
+        "parameters": [
+          {
+            "name": "alias",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "player",
+            "description": "player with new values of properties",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/player"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Player Updated",
+            "schema": {
+              "$ref": "#/definitions/player"
+            }
+          },
+          "202": {
+            "description": "Player Correctly Updated",
+            "schema": {
+              "$ref": "#/definitions/code202"
+            }
+          },
+          "502": {
+            "description": "The field; name, surname, score are mandatories (the score value has to be >0)",
+            "schema": {
+              "$ref": "#/definitions/codeError502"
+            }
+          },
+          "504": {
+            "description": "Error; Player not found",
+            "schema": {
+              "$ref": "#/definitions/codeError504"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "player": {
+      "required": [
+        "alias",
+        "name",
+        "score",
+        "surname"
+      ],
+      "properties": {
+        "alias": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "surname": {
+          "type": "string"
+        },
+        "score": {
+          "type": "integer"
+        }
+      }
+    },
+    "players": {
+      "type": "array",
+      "items": {
+        "$ref": "#/definitions/player"
+      }
+    },
+    "playerCreator": {
+      "required": [
+        "name",
+        "surname",
+        "score"
+      ],
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "surname": {
+          "type": "string"
+        },
+        "score": {
+          "type": "integer"
+        }
+      },
+      "example": {
+        "name": "Eric",
+        "surname": "Clemente",
+        "score": 200
+      }
+    },
+    "code100": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "integer",
+          "example": "2-DAMVI Server Up",
+          "description": "Server-Up"
+        }
+      }
+    },
+    "code200": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "integer",
+          "example": "Player Exists",
+          "description": "Player Exists"
+        }
+      }
+    },
+    "code201": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "integer",
+          "example": "Player Correctly Created",
+          "description": "Player Correctly Created"
+        }
+      }
+    },
+    "code202": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "integer",
+          "example": "Player Correctly Updated",
+          "description": "Player Correctly Updated"
+        }
+      }
+    },
+    "codeError502": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "integer",
+          "example": "The field; name, surname, score are mandatories (the score value has to be >0)",
+          "description": "The field; name, surname, score are mandatories (the score value has to be >0)"
+        }
+      }
+    },
+    "codeError503": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "integer",
+          "example": "Error; Player Exists",
+          "description": "Error; Player Exists"
+        }
+      }
+    },
+    "codeError504": {
+      "type": "object",
+      "properties": {
+        "status": {
+          "type": "integer",
+          "example": "Error; Player not found",
+          "description": "Error; Player not found"
+        }
+      }
+    }
+  }
+}
